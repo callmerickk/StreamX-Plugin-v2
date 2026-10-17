@@ -2,7 +2,7 @@
   "name": "MovieBox Multi-Source",
   "version": "0.2.0",
   "description": "Parallel MovieBox H5 source probe for Nuvio. Returns the first source with directly exposed, plausible media URLs.",
-  "providers": [
+  "scrapers": [
     {
       "id": "moviebox-multisource",
       "name": "MovieBox Multi-Source",
@@ -16,6 +16,5 @@
       "formats": ["mp4", "m3u8", "mpd"],
       "supportsExternalPlayer": true
     }
-  ],
-  "scrapers": []
+  ]
 }
