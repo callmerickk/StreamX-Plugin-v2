@@ -1,19 +1,29 @@
 {
   "name": "MovieBox Multi-Source",
-  "version": "0.2.0",
-  "description": "Parallel MovieBox H5 source probe for Nuvio. Returns the first source with directly exposed, plausible media URLs.",
+  "version": "0.2.1",
+  "description": "MovieBox H5 provider for Nuvio. Uses ordinary web H5 requests and returns directly exposed playable stream entries.",
   "scrapers": [
     {
       "id": "moviebox-multisource",
       "name": "MovieBox Multi-Source",
-      "description": "Queries movibox.net, moviebox.ph, movieboxhd.net, and movie-box.co in parallel. First valid direct stream list wins.",
-      "version": "0.2.0",
+      "description": "Queries movibox.net and alternate MovieBox origins in parallel; returns first directly exposed usable stream list.",
+      "version": "0.2.1",
       "author": "Community",
-      "supportedTypes": ["movie", "tv"],
+      "supportedTypes": [
+        "movie",
+        "tv"
+      ],
       "filename": "providers/moviebox-multisource.js",
       "enabled": true,
-      "contentLanguage": ["en", "hi"],
-      "formats": ["mp4", "m3u8", "mpd"],
+      "contentLanguage": [
+        "en",
+        "hi"
+      ],
+      "formats": [
+        "mp4",
+        "m3u8",
+        "mpd"
+      ],
       "supportsExternalPlayer": true
     }
   ]
