@@ -1,5 +1,5 @@
 /*
- * MovieBox Multi-Source provider for Nuvio.
+ * MovieBox Multi-Source provider for Nuvio (v0.2.1 request compatibility update).
  *
  * Design goals:
  * - Probe the configured MovieBox web origins concurrently.
@@ -15,8 +15,8 @@
 var PROVIDER_NAME = 'MovieBox Multi-Source';
 var API = 'https://h5-api.aoneroom.com/wefeed-h5api-bff';
 var USER_AGENT = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36';
-var REQUEST_TIMEOUT_MS = 2200;
-var SOURCE_DEADLINE_MS = 7200;
+var REQUEST_TIMEOUT_MS = 6500;
+var SOURCE_DEADLINE_MS = 18000;
 var META_TTL_MS = 6 * 60 * 60 * 1000;
 var STREAM_TTL_MS = 90 * 1000;
 var BASE64 = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
@@ -87,8 +87,12 @@ function requestText(url, source, options) {
     'Accept': 'application/json, text/plain, */*'
   };
   if (source && source.site) {
-    headers.Origin = source.site;
-    headers.Referer = source.site + '/';
+    if (!options.omitOrigin) headers.Origin = source.site;
+    headers.Referer = options.referer || source.site + '/';
+    // Match the headers used by the user's successful MovieBox HAR requests.
+    // They are part of the ordinary H5 web API request, not mobile-app signing.
+    if (options.apiRequest) headers['x-client-info'] = '{"timezone":"Asia/Calcutta"}';
+    if (options.includeRequestLang) headers['x-request-lang'] = 'en';
   }
   Object.keys(options.headers || {}).forEach(function (key) { headers[key] = options.headers[key]; });
 
@@ -278,6 +282,8 @@ function requestCandidates(title, sources, controllers) {
   var suggestSource = { id: 'shared-api', site: SOURCES[0].site };
   var suggestions = requestJson(API + '/subject/search-suggest', suggestSource, {
     method: 'POST',
+    apiRequest: true,
+    includeRequestLang: true,
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ keyword: title, perPage: 10 })
   }).then(collectCandidates).catch(function (error) {
@@ -314,6 +320,7 @@ function requestCandidates(title, sources, controllers) {
         if (!seen[key]) { seen[key] = true; combined.push(candidate); }
       });
       combined.sort(function (a, b) { return titleScore({ title: title, year: null }, b) - titleScore({ title: title, year: null }, a); });
+      console.log('[MovieBox Multi-Source] ' + sources[i].id + ' candidates=' + combined.length);
       bySource.push(combined);
     }
     return bySource;
@@ -346,7 +353,7 @@ function getDetails(candidate, source, signal) {
     var remaining = urls.length;
     var settled = false;
     urls.forEach(function (url) {
-      requestJson(url, source, { signal: signal }).then(normalizeDetail).then(function (detail) {
+      requestJson(url, source, { signal: signal, apiRequest: true }).then(normalizeDetail).then(function (detail) {
         if (settled) return;
         if (detail) {
           settled = true;
@@ -435,7 +442,17 @@ function getPlayback(detail, source, mediaType, season, episode, signal) {
   var playUrl = source.site + '/wefeed-h5api-bff/subject/play?subjectId=' + encodeURIComponent(detail.subjectId) +
     '&se=' + encodeURIComponent(se) + '&ep=' + encodeURIComponent(ep) +
     '&detailPath=' + encodeURIComponent(detail.detailPath) + '&streamSignType=1';
-  return requestJson(playUrl, source, { signal: signal }).then(function (response) {
+  // MovieBox's own web page sends the detail page as the playback Referer.
+  // The HARs show this shape, including season/episode and language parameters.
+  var detailReferer = source.site + '/movies/' + encodeURIComponent(detail.detailPath) +
+    '?id=' + encodeURIComponent(detail.subjectId) + '&type=/movie/detail' +
+    '&detailSe=' + (isTv ? String(se) : '') + '&detailEp=' + (isTv ? String(ep) : '') + '&lang=en';
+  return requestJson(playUrl, source, {
+    signal: signal,
+    apiRequest: true,
+    omitOrigin: true,
+    referer: detailReferer
+  }).then(function (response) {
     return toStreams(response, source);
   });
 }
