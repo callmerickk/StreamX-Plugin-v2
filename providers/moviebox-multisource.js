@@ -201,7 +201,7 @@ function formatCholeCard(opt) {
   };
 }
 var API_BASE = "https://api3.aoneroom.com";
-var PLAYER_BASE = "https://moviebox.ph";
+var PLAYER_BASE = "https://movibox.net";
 var PLAYER_USER_AGENT = "Mozilla/5.0 (Linux; Android 15; Pixel 9) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/154.0.0.0 Mobile Safari/537.36";
 var HOST_POOL = [
   "https://api6.aoneroom.com",
