@@ -1,29 +1,19 @@
 {
   "name": "MovieBox Multi-Source",
-  "version": "0.2.1",
-  "description": "MovieBox H5 provider for Nuvio. Uses ordinary web H5 requests and returns directly exposed playable stream entries.",
+  "version": "0.2.2",
+  "description": "MovieBox H5 provider for Nuvio. Improved nested playback response parsing for HLS, DASH, streams, and resourceDetectors.",
   "scrapers": [
     {
       "id": "moviebox-multisource",
       "name": "MovieBox Multi-Source",
-      "description": "Queries movibox.net and alternate MovieBox origins in parallel; returns first directly exposed usable stream list.",
-      "version": "0.2.1",
+      "description": "MovieBox H5 source provider with multi-origin search and expanded playback response parsing.",
+      "version": "0.2.2",
       "author": "Community",
-      "supportedTypes": [
-        "movie",
-        "tv"
-      ],
+      "supportedTypes": ["movie", "tv"],
       "filename": "providers/moviebox-multisource.js",
       "enabled": true,
-      "contentLanguage": [
-        "en",
-        "hi"
-      ],
-      "formats": [
-        "mp4",
-        "m3u8",
-        "mpd"
-      ],
+      "contentLanguage": ["en", "hi"],
+      "formats": ["mp4", "m3u8", "mpd"],
       "supportsExternalPlayer": true
     }
   ]
